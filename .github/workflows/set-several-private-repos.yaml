@@ -24,12 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
+        repo: ${{ needs.read-repos.outputs.repos }}
 
     steps:
     - name: Convert repository to private
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
       run: |
