@@ -31,7 +31,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         REPO_NAME: ${{ matrix.repo }}
-        OWNER: "stemdo-labs"
+        OWNER: ${{ github.repository_owner }}
       run: |
         echo "Converting $REPO_NAME to private"
         curl -X PATCH \
