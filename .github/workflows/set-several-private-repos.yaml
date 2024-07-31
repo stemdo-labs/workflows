@@ -14,8 +14,9 @@ jobs:
     - name: Read repository names from JSON
       id: read_repos
       run: |
-        REPOS=$(cat repos.json | jq -r '.[]' | jq -s -R 'split("\n")[:-1]')
-        echo "::set-output name=repos::$REPOS"
+        echo "Reading repository names from repos.json"
+        REPO_NAMES=$(jq -c '.[]' repos.json)
+        echo "::set-output name=repos::[$REPO_NAMES]"
 
   convert_to_private:
     needs: read-repos
