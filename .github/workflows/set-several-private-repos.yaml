@@ -4,6 +4,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  list-repos:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: List Org Repos
+      id: list-all-repos
+      env:
+        TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        PAGE=1
+        REPO_NAMES=()
+        while :; do
+          URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
+          if [ -n "$TOKEN" ]; then
+            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
+          else
+            RESPONSE=$(curl -s "$URL")
+          fi
+
+          REPOS=$(echo "$RESPONSE" | jq -r '.[].name')
+
+          if [ -z "$REPOS" ]; then
+              break
+          fi
+
+          REPO_NAMES+=($REPOS)
+          PAGE=$((PAGE + 1))
+        done
+
+        echo "${REPO_NAMES[@]}" | jq -R -s -c 'split(" ")' > repos.json
+        echo "repos.json created with content:"
+        cat repos.json
+
   read-repos:
     runs-on: ubuntu-latest
     outputs:
