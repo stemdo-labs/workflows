@@ -35,7 +35,7 @@ jobs:
       run: |
         echo "Converting $REPO_NAME to private"
         echo "https://api.github.com/repos/$OWNER/$REPO_NAME"
-        RESPONSE=$(curl -s -w "%{http_code}" \
+        RESPONSE=$(curl -s -o response.json -w "%{http_code}" \
           -X PATCH \
           -H "Authorization: token $GITHUB_TOKEN" \
           -H "Accept: application/vnd.github.v3+json" \
