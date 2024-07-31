@@ -1,0 +1,50 @@
+name: Modify Repository Permissions
+
+on:
+  workflow_dispatch:
+    inputs:
+      org:
+        description: 'Organization name'
+        required: true
+        default: 'stemdo-labs'
+      repo:
+        description: 'Repository name'
+        required: true
+      username:
+        description: 'Username'
+        required: true
+      permission:
+        description: 'Permission level (admin, write, read)'
+        type: choice
+        required: true
+        options:
+          - admin
+          - write
+          - read
+
+jobs:
+  modify-permissions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install axios
+
+      - name: Modify repository permissions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          node modify-permissions.js \
+            ${{ github.event.inputs.org }} \
+            ${{ github.event.inputs.repo }} \
+            ${{ github.event.inputs.username }} \
+            ${{ github.event.inputs.permission }}
