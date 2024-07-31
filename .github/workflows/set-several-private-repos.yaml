@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repo: ${{ needs.read-repos.outputs.repos }}
+        repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
 
     steps:
     - name: Convert repository to private
