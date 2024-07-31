@@ -34,4 +34,4 @@ jobs:
     #     REPO_NAME: ${{ matrix.repo }}
     #     OWNER: ${{ github.repository_owner }}
       run: |
-        echo "$GITHUB_CONTEXT"
+        echo "${{ env.REPO_NAMES }}"
