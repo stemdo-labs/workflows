@@ -17,14 +17,14 @@ jobs:
         echo "Reading repository names from repos.json"
         REPO_NAMES=$(jq -c '.' repos.json)
         echo "$REPO_NAMES"
-        echo "repos=$REPO_NAMES" >> $GITHUB_OUTPUT
+        echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_ENV
 
   convert_to_private:
     needs: read-repos
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repo: ${{ needs.read-repos.outputs.repos }}
+        repo: ${{ env.REPO_NAMES }}
 
     steps:
     - name: Convert repository to private
