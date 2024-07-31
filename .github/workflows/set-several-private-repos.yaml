@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repo: ${{ fromJson(env.REPO_NAMES) }}
+        repo: ${{ fromJson(github.env.REPO_NAMES) }}
 
     steps:
     - name: Convert repository to private
