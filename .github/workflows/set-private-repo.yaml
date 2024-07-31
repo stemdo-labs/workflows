@@ -11,7 +11,7 @@ jobs:
     steps:
     - name: Convert repository to private
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         REPO_NAME: ${{ github.event.inputs.repo_name }}
         OWNER: ${{ github.repository_owner }}
       run: |
