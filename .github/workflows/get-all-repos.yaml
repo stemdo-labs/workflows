@@ -12,10 +12,12 @@ jobs:
 
     - name: List Org Repos
       id: list-all-repos
+      env:
+        TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         PAGE=1
         while :; do
-          URL="https://api.github.com/organizations/$ORG_ID/repos?page=$PAGE&per_page=100"
+          URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
           if [ -n "$TOKEN" ]; then
             RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
           else
