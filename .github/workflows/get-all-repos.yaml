@@ -13,24 +13,22 @@ jobs:
     - name: List Org Repos
       id: list-all-repos
       env:
-        TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         PAGE=1
+        REPO_NAMES=()
         while :; do
           URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
-          if [ -n "$TOKEN" ]; then
-            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
-          else
-            RESPONSE=$(curl -s "$URL")
-          fi
-
+          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$URL")
           REPOS=$(echo "$RESPONSE" | jq -r '.[].name')
 
           if [ -z "$REPOS" ]; then
-              break
+            break
           fi
 
-          echo "$REPOS"
+          for NAME in $REPOS; do
+            REPO_NAMES+=("$NAME")
+          done
 
           PAGE=$((PAGE + 1))
         done
