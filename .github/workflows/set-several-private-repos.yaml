@@ -15,8 +15,8 @@ jobs:
       id: read_repos
       run: |
         echo "Reading repository names from repos.json"
-        REPO_NAMES=$(jq -r '.[]' repos.json | jq -R . | jq -s .)
-        echo "repos=$REPO_NAMES" >> $GITHUB_OUTPUT
+        REPO_NAMES=$(jq -c '.[]' repos.json)
+        echo "repos=$REPO_NAMES" >> $GITHUB_ENV
 
 #   convert_to_private:
 #     needs: read-repos
