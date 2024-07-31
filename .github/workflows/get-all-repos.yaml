@@ -36,6 +36,7 @@ jobs:
         done
 
         echo "${REPO_NAMES[@]}" | jq -R . | jq -s . > repos.json
+        cat repos.json
     
     - name: Commit and Push JSON File
       env:
