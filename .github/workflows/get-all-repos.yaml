@@ -1,4 +1,4 @@
-name: Convert Repositories to Private
+name: Get all repos
 
 on:
   workflow_dispatch:
