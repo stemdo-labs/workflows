@@ -1,4 +1,4 @@
-name: Convert Repositories to Private
+name: List all repositories in an Organization
 
 on:
   workflow_dispatch:
