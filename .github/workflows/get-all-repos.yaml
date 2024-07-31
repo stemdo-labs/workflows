@@ -1,4 +1,5 @@
-name: Get all repos
+name: List all repositories in an Organization
+
 
 on:
   workflow_dispatch:
