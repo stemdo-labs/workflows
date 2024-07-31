@@ -17,21 +17,23 @@ jobs:
         echo "Reading repository names from repos.json"
         REPO_NAMES=$(jq -c '.' repos.json)
         echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_ENV
-        echo "REPO_NAMES=$REPO_NAMES"
-        echo "$GITHUB_CONTEXT"
 
-  convert_to_private:
-    needs: read-repos
-    runs-on: ubuntu-latest
-    # strategy:
-    #   matrix:
-    #     repo: ${{ fromJson(github.env.REPO_NAMES) }}
-
-    steps:
-    - name: Convert repository to private
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-    #     REPO_NAME: ${{ matrix.repo }}
-    #     OWNER: ${{ github.repository_owner }}
+    - name: Print env
       run: |
-        echo "${{ env.REPO_NAMES }}"
+        echo "${{ github.env.REPO_NAMES }}"
+
+  # convert_to_private:
+  #   needs: read-repos
+  #   runs-on: ubuntu-latest
+  #   # strategy:
+  #   #   matrix:
+  #   #     repo: ${{ fromJson(github.env.REPO_NAMES) }}
+
+  #   steps:
+  #   - name: Convert repository to private
+  #   #   env:
+  #   #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  #   #     REPO_NAME: ${{ matrix.repo }}
+  #   #     OWNER: ${{ github.repository_owner }}
+  #     run: |
+  #       echo "${{ env.REPO_NAMES }}"
