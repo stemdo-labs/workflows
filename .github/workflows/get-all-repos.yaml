@@ -34,7 +34,7 @@ jobs:
           PAGE=$((PAGE + 1))
         done
 
-        echo "${REPO_NAMES[@]}" | jq -R . | jq -s . > repos.json
+        echo "${REPO_NAMES[*]}" > repos.json
         cat repos.json
     
     - name: Commit and Push JSON File
