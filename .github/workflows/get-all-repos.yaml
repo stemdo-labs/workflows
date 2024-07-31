@@ -1,5 +1,6 @@
 name: List all repositories in an Organization
 
+
 on:
   workflow_dispatch:
 
@@ -34,3 +35,16 @@ jobs:
 
           PAGE=$((PAGE + 1))
         done
+
+        echo "${REPO_NAMES[@]}" | jq -R . | jq -s . > repos.json
+        cat repos.json
+    
+    - name: Commit and Push JSON File
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add repos.json
+        git commit -m 'Add repos.json with list of all repositories'
+        git push origin HEAD:main
