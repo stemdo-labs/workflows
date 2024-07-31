@@ -6,7 +6,8 @@ on:
 jobs:
   read-repos:
     runs-on: ubuntu-latest
-
+    outputs:
+      repos: ${{ steps.read_repos.outputs.REPO_NAMES }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -16,7 +17,7 @@ jobs:
       run: |
         echo "Reading repository names from repos.json"
         REPO_NAMES=$(jq -c '.' repos.json)
-        echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_ENV
+        echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_OUTPUT
 
   convert_to_private:
     needs: read-repos
@@ -32,4 +33,4 @@ jobs:
     #     REPO_NAME: ${{ matrix.repo }}
     #     OWNER: ${{ github.repository_owner }}
       run: |
-        echo "${{ github.env.REPO_NAMES }}"
+        echo "${{ needs.read-repos.outputs.repos }}"
