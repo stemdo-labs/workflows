@@ -2,28 +2,38 @@ name: Convert Repositories to Private
 
 on:
   workflow_dispatch:
-    inputs:
-      repo_names:
-        description: 'Comma-separated list of repository names to convert'
-        required: true
 
 jobs:
-  convert_to_private:
+  read-repos:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Convert repositories to private
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Read repository names from JSON
+      id: read_repos
+      run: |
+        REPOS=$(cat repos.json | jq -r '.[]' | jq -s -R 'split("\n")[:-1]')
+        echo "::set-output name=repos::$REPOS"
+
+  convert_to_private:
+    needs: read-repos
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
+
+    steps:
+    - name: Convert repository to private
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        REPO_NAMES: ${{ github.event.inputs.repo_names }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
       run: |
-        IFS=',' read -r -a REPO_ARRAY <<< "$REPO_NAMES"
-        for REPO_NAME in "${REPO_ARRAY[@]}"; do
-          echo "Converting $REPO_NAME to private"
-          curl -X PATCH \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/$OWNER/$REPO_NAME \
-            -d '{"private": true}'
-        done
+        echo "Converting $REPO_NAME to private"
+        curl -X PATCH \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/$OWNER/$REPO_NAME \
+          -d '{"private": true}'
