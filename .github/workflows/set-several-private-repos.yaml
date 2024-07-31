@@ -23,6 +23,7 @@ jobs:
     needs: read-repos
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
 
