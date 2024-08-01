@@ -20,7 +20,7 @@ jobs:
         while :; do
           URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
           if [ -n "$TOKEN" ]; then
-            RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$URL")
+            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
           else
             RESPONSE=$(curl -s "$URL")
           fi
@@ -30,16 +30,17 @@ jobs:
           fi
           echo "$REPOS"
           PAGE=$((PAGE + 1))
+        done
 
-        echo $REPOS > repos.json
-
+        echo "$REPOS" > repos.json
+        cat repos.json
     
-    # - name: Commit and Push JSON File
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-    #   run: |
-    #     git config --global user.name 'github-actions[bot]'
-    #     git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-    #     git add repos.json
-    #     git commit -m 'Add repos.json with list of all repositories'
-    #     git push origin HEAD:main
+    - name: Commit and Push JSON File
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add repos.json
+        git commit -m 'Add repos.json with list of all repositories'
+        git push origin HEAD:main
