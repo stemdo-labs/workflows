@@ -20,7 +20,7 @@ jobs:
         while :; do
           URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
           if [ -n "$TOKEN" ]; then
-            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
+            RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$URL")
           else
             RESPONSE=$(curl -s "$URL")
           fi
