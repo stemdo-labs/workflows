@@ -32,9 +32,7 @@ jobs:
               break
           fi
 
-          for REPO in $REPOS; do
-            ALL_REPOS+=("$REPO")
-          done
+          ALL_REPOS+=("$REPOS")
           
           PAGE=$((PAGE + 1))
         done
