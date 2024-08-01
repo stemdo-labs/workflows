@@ -14,13 +14,14 @@ jobs:
     - name: List Org Repos
       id: list-all-repos
       env:
-        TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         PAGE=1
+        ALL_REPOS=()
         while :; do
           URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
           if [ -n "$TOKEN" ]; then
-            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
+            RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$URL")
           else
             RESPONSE=$(curl -s "$URL")
           fi
@@ -31,20 +32,25 @@ jobs:
               break
           fi
 
-          echo "$REPOS"
-
+          for REPO in $REPOS; do
+            ALL_REPOS+=("\"$REPO\"")
+          done
+          
           PAGE=$((PAGE + 1))
         done
-
-        echo "${REPO_NAMES[@]}" | jq -R . | jq -s . > repos.json
+        echo "$ALL_REPOS"
+        echo "[${ALL_REPOS[*]}]" | sed 's/" "/","/g' > repos.json
+        echo "-------------------------"
         cat repos.json
     
     - name: Commit and Push JSON File
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_USER: ${{ secrets.GH_USER }}
+        GH_EMAIL: ${{ secrets.GH_EMAIL }}
       run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git config --global user.name $GH_USER
+        git config --global user.email $GH_EMAIL
         git add repos.json
         git commit -m 'Add repos.json with list of all repositories'
         git push origin HEAD:main
