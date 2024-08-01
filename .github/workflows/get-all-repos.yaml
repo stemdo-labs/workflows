@@ -27,6 +27,7 @@ jobs:
           fi
 
           REPOS=$(echo "$RESPONSE" | jq -r '.[].name')
+          echo "$REPOS"
           ALL_REPOS+=("$REPOS")
 
           if [ -z "$REPOS" ]; then
