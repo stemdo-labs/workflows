@@ -17,24 +17,21 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         PAGE=1
-        REPO_NAMES=()
         while :; do
           URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
-          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$URL")
-          REPOS=$(echo "$RESPONSE" | jq -r '.[].name')
-
-          if [ -z "$REPOS" ]; then
-            break
+          if [ -n "$TOKEN" ]; then
+            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
+          else
+            RESPONSE=$(curl -s "$URL")
           fi
-
-          for NAME in $REPOS; do
-            REPO_NAMES+=("$NAME")
-          done
-
+          REPOS=$(echo "$RESPONSE" | jq -r '.[].name')
+          if [ -z "$REPOS" ]; then
+              break
+          fi
+          echo "$REPOS"
           PAGE=$((PAGE + 1))
-        done
 
-        echo "${REPO_NAMES[*]}" > repos.json
+        echo "$REPOS" > repos.json
         cat repos.json
     
     - name: Commit and Push JSON File
