@@ -27,17 +27,17 @@ jobs:
           fi
 
           REPOS=$(echo "$RESPONSE" | jq -r '.[].name')
+          ALL_REPOS+=("$REPOS")
 
           if [ -z "$REPOS" ]; then
               break
           fi
-
-          ALL_REPOS+=("$REPOS")
           
           PAGE=$((PAGE + 1))
         done
 
         echo "$ALL_REPOS" > repos.json
+        echo "-------------------------"
         cat repos.json
     
     # - name: Commit and Push JSON File
