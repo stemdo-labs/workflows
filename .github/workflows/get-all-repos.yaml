@@ -28,7 +28,7 @@ jobs:
           if [ -z "$REPOS" ]; then
               break
           fi
-          echo "$REPOS"
+          
           PAGE=$((PAGE + 1))
         done
 
