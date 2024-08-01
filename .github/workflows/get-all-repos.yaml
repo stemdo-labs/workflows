@@ -38,9 +38,8 @@ jobs:
           
           PAGE=$((PAGE + 1))
         done
-
-        echo "[${ALL_REPOS[*]}]" | sed 's/ /,/g' > repos.json
         echo "$ALL_REPOS"
+        echo "[${ALL_REPOS[*]}]" | sed 's/" "/","/g' > repos.json
         echo "-------------------------"
         cat repos.json
     
