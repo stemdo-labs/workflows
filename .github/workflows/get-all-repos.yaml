@@ -39,7 +39,7 @@ jobs:
           PAGE=$((PAGE + 1))
         done
 
-        echo "[${ALL_REPOS[*]}]" > repos.json
+        echo "[${ALL_REPOS[*]}]" | jq . > repos.json
         echo "$ALL_REPOS"
         echo "-------------------------"
         cat repos.json
