@@ -27,16 +27,19 @@ jobs:
           fi
 
           REPOS=$(echo "$RESPONSE" | jq -r '.[].name')
-          ALL_REPOS+=("$REPOS")
 
           if [ -z "$REPOS" ]; then
               break
           fi
+
+          for REPO in $REPOS; do
+            ALL_REPOS+=("\"$REPO\"")
+          done
           
           PAGE=$((PAGE + 1))
         done
 
-        echo "$ALL_REPOS" > repos.json
+        echo "[${ALL_REPOS[*]}]" > repos.json
         echo "$ALL_REPOS"
         echo "-------------------------"
         cat repos.json
