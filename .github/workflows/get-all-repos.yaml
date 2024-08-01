@@ -32,7 +32,7 @@ jobs:
           PAGE=$((PAGE + 1))
 
         echo $REPOS > repos.json
-        cat repos.json
+
     
     # - name: Commit and Push JSON File
     #   env:
