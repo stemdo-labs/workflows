@@ -31,7 +31,7 @@ jobs:
           echo "$REPOS"
           PAGE=$((PAGE + 1))
 
-        echo "$REPOS" > repos.json
+        echo $REPOS > repos.json
         cat repos.json
     
     - name: Commit and Push JSON File
