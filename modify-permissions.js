@@ -1,5 +1,3 @@
-// Script for modify-permissions workflow
-
 const axios = require('axios');
 
 const [,, org, repo, username, permission] = process.argv;
@@ -12,18 +10,18 @@ const config = {
   }
 };
 
-axios.put(`https://api.github.com/repos/${org}/${repo}/collaborators/${username}`, {}, {
-  headers: {
-    'Authorization': `token ${token}`,
-    'Accept': 'application/vnd.github.v3+json'
-  },
-  params: {
-    permission: permission
-  }
-})
-.then(response => {
-  console.log(`Successfully modified permissions for ${username} in ${repo}`);
-})
-.catch(error => {
-  console.error(`Error modifying permissions: ${error.message}`);
-});
+const url = `https://api.github.com/repos/${org}/${repo}/collaborators/${username}`;
+
+axios.put(url, {
+  permission: permission
+}, config)
+  .then(response => {
+    console.log(`Successfully modified permissions for ${username} in ${repo}`);
+  })
+  .catch(error => {
+    console.error(`Error modifying permissions: ${error.message}`);
+    if (error.response) {
+      console.error(`Status: ${error.response.status}`);
+      console.error(`Data: ${JSON.stringify(error.response.data)}`);
+    }
+  });
