@@ -22,7 +22,8 @@ on:
           - write
           - read
 
-permissions: write-all  # Adjust permissions as needed
+permissions:
+  contents: write  # Adjust permissions as needed
 
 jobs:
   modify-permissions:
