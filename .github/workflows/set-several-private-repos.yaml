@@ -10,7 +10,7 @@ jobs:
       repos: ${{ steps.read_repos.outputs.REPO_NAMES }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Read repository names from JSON
       id: read_repos
@@ -19,8 +19,20 @@ jobs:
         REPO_NAMES=$(jq -c '.' repos.json)
         echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_OUTPUT
 
+  generate-token:
+    runs-on: ubuntu-latest
+    outputs:
+      token: ${{ steps.private-repos-token.outputs.token }}
+    steps:
+      - name: private-repos-install-token
+        id: private-repos-token
+        uses: getsentry/action-github-app-token@v3
+        with:
+          app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
+          private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
+
   convert_to_private:
-    needs: read-repos
+    needs: [read-repos, generate-token]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,7 +42,7 @@ jobs:
     steps:
     - name: Convert repository to private
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        MY_TOKEN: ${{ needs.generate-token.outputs.token }}
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
       run: |
@@ -38,7 +50,7 @@ jobs:
         echo "https://api.github.com/repos/$OWNER/$REPO_NAME"
         RESPONSE=$(curl -s -o response.json -w "%{http_code}" \
           -X PATCH \
-          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Authorization: token $MY_TOKEN" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/$OWNER/$REPO_NAME \
           -d '{"private": true}')
