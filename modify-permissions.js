@@ -12,12 +12,18 @@ const config = {
   }
 };
 
-axios.put(`https://api.github.com/orgs/${org}/teams/${username}/repos/${org}/${repo}`, {
-  permission: permission
-}, config)
-  .then(response => {
-    console.log(`Successfully modified permissions for ${username} in ${repo}`);
-  })
-  .catch(error => {
-    console.error(`Error modifying permissions: ${error.message}`);
-  });
+axios.put(`https://api.github.com/repos/${org}/${repo}/collaborators/${username}`, {}, {
+  headers: {
+    'Authorization': `token ${token}`,
+    'Accept': 'application/vnd.github.v3+json'
+  },
+  params: {
+    permission: permission
+  }
+})
+.then(response => {
+  console.log(`Successfully modified permissions for ${username} in ${repo}`);
+})
+.catch(error => {
+  console.error(`Error modifying permissions: ${error.message}`);
+});
