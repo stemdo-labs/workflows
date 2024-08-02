@@ -21,9 +21,9 @@ on:
           - admin
           - write
           - read
-      personal_access_token:
-        description: 'Personal Access Token'
-        required: true
+      # personal_access_token:
+      #   description: 'Personal Access Token'
+      #   required: true
 
 jobs:
   modify-permissions:
@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -44,7 +44,7 @@ jobs:
       - name: Modify repository permissions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERSONAL_ACCESS_TOKEN: ${{ github.event.inputs.personal_access_token }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PAT }}
         run: |
           node modify-permissions.js \
             ${{ github.event.inputs.org }} \
