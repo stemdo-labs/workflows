@@ -58,5 +58,6 @@ jobs:
         echo "Response code: $RESPONSE"
         if [ "$RESPONSE" -ne 200 ]; then
           echo "Failed to convert $REPO_NAME to private. HTTP status code: $RESPONSE"
+          cat response.json
           exit 1
         fi
