@@ -41,10 +41,17 @@ jobs:
       - name: Install dependencies
         run: npm install axios
 
+      - name: my-app-install token
+        id: my-app
+        uses: getsentry/action-github-app-token@v3
+        with:
+          app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
+          private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
+
       - name: Modify repository permissions
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PAT }}
+          TOKEN: ${{ steps.my-app.outputs.token }}
+          # PERSONAL_ACCESS_TOKEN: ${{ secrets.PAT }}
         run: |
           node modify-permissions.js \
             ${{ github.event.inputs.org }} \

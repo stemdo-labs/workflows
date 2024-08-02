@@ -3,7 +3,7 @@
 const axios = require('axios');
 
 const [,, org, repo, username, permission] = process.argv;
-const token = process.env.PERSONAL_ACCESS_TOKEN;
+const token = process.env.TOKEN;
 
 const config = {
   headers: {
