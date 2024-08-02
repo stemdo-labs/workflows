@@ -24,6 +24,9 @@ on:
       # personal_access_token:
       #   description: 'Personal Access Token'
       #   required: true
+permissions:
+      id-token: write
+      contents: write
 
 jobs:
   modify-permissions:
