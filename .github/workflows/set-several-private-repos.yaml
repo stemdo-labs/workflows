@@ -20,17 +20,6 @@ jobs:
         REPO_NAMES=$(jq -c '.' repos.json)
         echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_OUTPUT
 
-    - name: Generate GithubApp token
-      id: repos-token
-      uses: getsentry/action-github-app-token@v3
-      with:
-        app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
-        private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
-
-    - name: Print token
-      run: |
-        echo ${{ steps.repos-token.outputs.token }}
-
   convert_to_private:
     needs: [read-repos]
     runs-on: ubuntu-latest
@@ -40,18 +29,23 @@ jobs:
         repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
 
     steps:
+    - name: Generate GithubApp token
+      id: repos-token
+      uses: getsentry/action-github-app-token@v3
+      with:
+        app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
+        private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
+
     - name: Convert repository to private
       env:
-        MY_TOKEN: ${{ needs.read-repos.outputs.token }}
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
       run: |
-        FORMATED_TOKEN=$(echo '${{ env.MY_TOKEN  }}' | sed 's/"/\\"/g')
         echo "Converting $REPO_NAME to private"
         echo "https://api.github.com/repos/$OWNER/$REPO_NAME"
         RESPONSE=$(curl -s -o response.json" \
           -X PATCH \
-          -H "Authorization: token $FORMATED_TOKEN | sed 's/"/\\"/g'" \
+          -H "Authorization: token ${{ steps.repos-token.outputs.token }} | sed 's/"/\\"/g'" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/$OWNER/$REPO_NAME \
           -d '{"private": true}')
