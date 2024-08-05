@@ -43,7 +43,7 @@ jobs:
       env:
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
-        TOKEN: ${{ secrets.GH_TOKEN }}
+        TOKEN: ${{ steps.repos-token.outputs.token  }}
       run: |
         RESPONSE=$(curl -s -o response.json -w "%{http_code}" \
           -X PATCH \
