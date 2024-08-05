@@ -19,5 +19,6 @@ axios.put(`https://api.github.com/repos/${org}/${repo}`, {
     console.log(`${response}`);
   })
   .catch(error => {
+    console.log(`https://api.github.com/repos/${org}/${repo}`)
     console.error(`Error: ${error.message}`);
   });
