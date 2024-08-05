@@ -7,21 +7,21 @@ jobs:
   read-repos:
     runs-on: ubuntu-latest
     outputs:
-      repos: ${{ steps.read_repos.outputs.REPO_NAMES }}
-      token: ${{ steps.repos_token.outputs.token }}
+      repos: ${{ steps.read-repos.outputs.REPO_NAMES }}
+      token: ${{ steps.repos-token.outputs.token }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Read repository names from JSON
-      id: read_repos
+      id: read-repos
       run: |
         echo "Reading repository names from repos.json"
         REPO_NAMES=$(jq -c '.' repos.json)
         echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_OUTPUT
 
     - name: Generate GithubApp token
-      id: repos_token
+      id: repos-token
       uses: getsentry/action-github-app-token@v3
       with:
         app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
@@ -29,7 +29,7 @@ jobs:
 
     - name: Print token
       run: |
-        echo ${{ steps.repos_token.outputs.token }}
+        echo ${{ steps.repos-token.outputs.token }}
 
   convert_to_private:
     needs: [read-repos]
