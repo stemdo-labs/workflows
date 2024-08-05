@@ -27,6 +27,10 @@ jobs:
         app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
         private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
 
+    - name: Print token
+      run: |
+        echo ${{ steps.repos-token.outputs.token }}
+
   convert_to_private:
     needs: [read-repos]
     runs-on: ubuntu-latest
