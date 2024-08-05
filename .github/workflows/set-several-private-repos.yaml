@@ -7,20 +7,21 @@ jobs:
   read-repos:
     runs-on: ubuntu-latest
     outputs:
-      repos: ${{ steps.read_repos.outputs.REPO_NAMES }}
+      repos: ${{ steps.read-repos.outputs.REPO_NAMES }}
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Read repository names from JSON
-      id: read_repos
+      id: read-repos
       run: |
         echo "Reading repository names from repos.json"
         REPO_NAMES=$(jq -c '.' repos.json)
         echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_OUTPUT
 
   convert_to_private:
-    needs: read-repos
+    needs: [read-repos]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -28,23 +29,30 @@ jobs:
         repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install axios
+
+    - name: Generate GithubApp token
+      id: repos-token
+      uses: getsentry/action-github-app-token@v3
+      with:
+        app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
+        private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
+        
     - name: Convert repository to private
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
+        TOKEN: ${{ steps.repos-token.outputs.token  }}
       run: |
-        echo "Converting $REPO_NAME to private"
-        echo "https://api.github.com/repos/$OWNER/$REPO_NAME"
-        RESPONSE=$(curl -s -o response.json -w "%{http_code}" \
-          -X PATCH \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/$OWNER/$REPO_NAME \
-          -d '{"private": true}')
-
-        echo "Response code: $RESPONSE"
-        if [ "$RESPONSE" -ne 200 ]; then
-          echo "Failed to convert $REPO_NAME to private. HTTP status code: $RESPONSE"
-          exit 1
-        fi
+        node set-private-repo.js \
+          ${{ matrix.repo }} \
+          ${{ github.repository_owner }} \
