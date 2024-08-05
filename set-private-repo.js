@@ -16,7 +16,7 @@ axios.put(`https://api.github.com/repos/${org}/${repo}`, {
   private: true
 }, config)
   .then(response => {
-    console.log(`Successful`);
+    console.log(`${response}`);
   })
   .catch(error => {
     console.error(`Error: ${error.message}`);
