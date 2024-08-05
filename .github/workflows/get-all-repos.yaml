@@ -11,17 +11,24 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Generate GithubApp token
+      id: repos-token
+      uses: getsentry/action-github-app-token@v3
+      with:
+        app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
+        private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
+
     - name: List Org Repos
       id: list-all-repos
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        TOKEN: ${{ steps.repos-token.outputs.token }}
       run: |
         PAGE=1
         ALL_REPOS=()
         while :; do
           URL="https://api.github.com/orgs/stemdo-labs/repos?page=$PAGE&per_page=100"
           if [ -n "$TOKEN" ]; then
-            RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$URL")
+            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "$URL")
           else
             RESPONSE=$(curl -s "$URL")
           fi
@@ -45,7 +52,7 @@ jobs:
     
     - name: Commit and Push JSON File
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ steps.repos-token.outputs.token }}
         GH_USER: ${{ secrets.GH_USER }}
         GH_EMAIL: ${{ secrets.GH_EMAIL }}
       run: |
