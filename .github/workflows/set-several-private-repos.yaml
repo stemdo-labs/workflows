@@ -38,12 +38,11 @@ jobs:
       fail-fast: false
       matrix:
         repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
-        token: ${{ needs.read-repos.outputs.token }}
 
     steps:
     - name: Convert repository to private
       env:
-        MY_TOKEN: ${{ matrix.token }}
+        MY_TOKEN: ${{ needs.read-repos.outputs.token }}
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
       run: |
