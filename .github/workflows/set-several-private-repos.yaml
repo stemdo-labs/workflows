@@ -51,7 +51,7 @@ jobs:
       env:
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
-        TOKEN: ${{ steps.repos-token.outputs.token  }}
+        TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         node set-private-repo.js \
           ${{ matrix.repo }} \
