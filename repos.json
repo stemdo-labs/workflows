@@ -1,5 +1,3 @@
 [
-    "workflows",
-    "kafka-ansible",
-    "permissions-test"
+    "kafka-ansible"
 ]
