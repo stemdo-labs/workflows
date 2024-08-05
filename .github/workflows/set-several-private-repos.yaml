@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       repos: ${{ steps.read-repos.outputs.REPO_NAMES }}
-      token: ${{ steps.repos-token.outputs.token }}
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -35,17 +35,18 @@ jobs:
       with:
         app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
         private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
-
+        
     - name: Convert repository to private
       env:
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
       run: |
+        FORMATED_TOKEN=$(echo '${{ steps.repos-token.outputs.token  }}' | sed 's/"/\\"/g')
         echo "Converting $REPO_NAME to private"
         echo "https://api.github.com/repos/$OWNER/$REPO_NAME"
         RESPONSE=$(curl -s -o response.json" \
           -X PATCH \
-          -H "Authorization: token ${{ steps.repos-token.outputs.token }} | sed 's/"/\\"/g'" \
+          -H "Authorization: token $FORMATED_TOKEN \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/$OWNER/$REPO_NAME \
           -d '{"private": true}')
