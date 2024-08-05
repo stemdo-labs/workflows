@@ -46,12 +46,12 @@ jobs:
         REPO_NAME: ${{ matrix.repo }}
         OWNER: ${{ github.repository_owner }}
       run: |
-        echo $MY_TOKEN
+        FORMATED_TOKEN=$(echo '${{ env.MY_TOKEN  }}' | sed 's/"/\\"/g')
         echo "Converting $REPO_NAME to private"
         echo "https://api.github.com/repos/$OWNER/$REPO_NAME"
         RESPONSE=$(curl -s -o response.json" \
           -X PATCH \
-          -H "Authorization: token $MY_TOKEN" \
+          -H "Authorization: token $FORMATED_TOKEN | sed 's/"/\\"/g'" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/$OWNER/$REPO_NAME \
           -d '{"private": true}')
