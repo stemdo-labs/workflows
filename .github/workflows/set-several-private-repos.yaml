@@ -32,14 +32,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '14'
-
-    - name: Install dependencies
-      run: npm install axios
-
     - name: Generate GithubApp token
       id: repos-token
       uses: getsentry/action-github-app-token@v3
@@ -53,6 +45,17 @@ jobs:
         OWNER: ${{ github.repository_owner }}
         TOKEN: ${{ steps.repos-token.outputs.token  }}
       run: |
-        node set-private-repo.js \
-          ${{ matrix.repo }} \
-          ${{ github.repository_owner }} \
+        RESPONSE=$(curl -s -o response.json -w "%{http_code}" \
+          -X PATCH \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $TOKEN" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/$OWNER/$REPO_NAME \
+          -d '{"private": true}')
+
+        echo "Response code: $RESPONSE"
+        if [ "$RESPONSE" -ne 200 ]; then
+          echo "Failed to convert $REPO_NAME to private. HTTP status code: $RESPONSE"
+          cat response.json
+          exit 1
+        fi
