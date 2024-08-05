@@ -12,7 +12,7 @@ const config = {
   }
 };
 
-axios.put(`https://api.github.com/repos/${org}/${repo}`, {
+axios.put(`https://api.github.com/orgs/${org}/repos/${repo}`, {
   private: true
 }, config)
   .then(response => {
