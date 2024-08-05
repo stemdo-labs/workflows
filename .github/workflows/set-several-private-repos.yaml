@@ -7,7 +7,8 @@ jobs:
   read-repos:
     runs-on: ubuntu-latest
     outputs:
-      repos: ${{ steps.read_repos.outputs.REPO_NAMES }}
+      repos: ${{ steps.read_repos.outputs.repo_names }}
+      token: ${{ steps.repos-token.outputs.token }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -17,28 +18,23 @@ jobs:
       run: |
         echo "Reading repository names from repos.json"
         REPO_NAMES=$(jq -c '.' repos.json)
-        echo "REPO_NAMES=$REPO_NAMES" >> $GITHUB_OUTPUT
+        echo "REPO_NAMES=$repo_names" >> $GITHUB_OUTPUT
 
-  generate-token:
-    runs-on: ubuntu-latest
-    outputs:
-      token: ${{ steps.private-repos-token.outputs.token }}
-    steps:
-      - name: private-repos-install-token
-        id: private-repos-token
-        uses: getsentry/action-github-app-token@v3
-        with:
-          app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
-          private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
+    - name: Generate GithubApp token
+      id: repos-token
+      uses: getsentry/action-github-app-token@v3
+      with:
+        app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
+        private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
 
   convert_to_private:
-    needs: [read-repos, generate-token]
+    needs: [read-repos]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         repo: ${{ fromJson(needs.read-repos.outputs.repos) }}
-        token: ${{ needs.generate-token.outputs.token }}
+        token: ${{ needs.read-repos.outputs.token }}
 
     steps:
     - name: Convert repository to private
