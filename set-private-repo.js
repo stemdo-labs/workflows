@@ -8,7 +8,7 @@ const token = process.env.TOKEN;
 const config = {
   headers: {
     'Authorization': `Bearer ${token}`,
-    'Accept': 'application/vnd.github.v3+json',
+    'Accept': 'application/vnd.github.+json',
     'X-GitHub-Api-Version': '2022-11-28'
   }
 };
@@ -20,5 +20,5 @@ axios.patch(`https://api.github.com/repos/${org}/${repo}`, {
     console.log(`${response}`);
   })
   .catch(error => {
-    console.error(`Error: ${error.message}`);
+    console.error(`Error: ${error}`);
   });
