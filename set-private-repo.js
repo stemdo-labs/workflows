@@ -8,12 +8,13 @@ const token = process.env.TOKEN;
 const config = {
   headers: {
     'Authorization': `token ${token}`,
-    'Accept': 'application/vnd.github.v3+json'
+    'Accept': 'application/vnd.github.v3+json',
+    'X-GitHub-Api-Version': '2022-11-28'
   }
 };
 
-axios.put(`https://api.github.com/repos/${org}/${repo}`, {
-  private: true
+axios.patch(`https://api.github.com/repos/${org}/${repo}`, {
+  "private": true
 }, config)
   .then(response => {
     console.log(`${response}`);
