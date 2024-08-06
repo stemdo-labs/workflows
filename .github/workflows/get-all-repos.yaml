@@ -63,4 +63,5 @@ jobs:
         git config --global user.email $GH_EMAIL
         git add prueba-all-repos.json
         git commit -m 'Add prueba-all-repos.json with list of all repositories'
+        git pull
         git push origin HEAD:main
