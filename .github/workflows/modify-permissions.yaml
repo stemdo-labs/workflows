@@ -23,12 +23,12 @@ on:
           - read
 
 permissions:
-  contents: write  # Adjust permissions as needed
+  contents: write
+  administration: write  # Necesario para modificar permisos
 
 jobs:
   modify-permissions:
     runs-on: ubuntu-latest
-    environment: needs-approve
 
     steps:
       - name: Checkout repository
@@ -50,6 +50,7 @@ jobs:
           private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
 
       - name: Modify repository permissions
+        id: modify-permissions
         env:
           TOKEN: ${{ steps.my-app.outputs.token }}
         run: |
@@ -58,3 +59,20 @@ jobs:
             ${{ github.event.inputs.repo }} \
             ${{ github.event.inputs.username }} \
             ${{ github.event.inputs.permission }}
+
+      - name: Create summary
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('summary.txt', 'utf8');
+            github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: context.runId,
+              output: {
+                title: 'Modify Repository Permissions Summary',
+                summary: summary,
+              }
+            });
