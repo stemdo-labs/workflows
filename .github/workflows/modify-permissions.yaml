@@ -24,7 +24,6 @@ on:
 
 permissions:
   contents: write
-  administration: write  # Necesario para modificar permisos
 
 jobs:
   modify-permissions:
