@@ -14,7 +14,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
-        path: main
+        ref: main
 
     - name: Generate GithubApp token
       id: repos-token
