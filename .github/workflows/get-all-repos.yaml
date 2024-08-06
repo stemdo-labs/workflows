@@ -49,9 +49,9 @@ jobs:
           PAGE=$((PAGE + 1))
         done
         echo "$ALL_REPOS"
-        echo "[${ALL_REPOS[*]}]" | sed 's/" "/","/g' > all-repos.json
+        echo "[${ALL_REPOS[*]}]" | sed 's/" "/","/g' > prueba-all-repos.json
         echo "-------------------------"
-        cat all-repos.json
+        cat prueba-all-repos.json
     
     - name: Commit and Push JSON File
       env:
@@ -61,6 +61,6 @@ jobs:
       run: |
         git config --global user.name $GH_USER
         git config --global user.email $GH_EMAIL
-        git add all-repos.json
-        git commit -m 'Add repos.json with list of all repositories'
-        git push origin private-repos
+        git add prueba-all-repos.json
+        git commit -m 'Add prueba-all-repos.json with list of all repositories'
+        git push origin HEAD:main
