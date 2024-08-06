@@ -1,9 +1,7 @@
-// Script for modify-permissions workflow
-
 const axios = require('axios');
 
 const [,, org, repo, username, permission] = process.argv;
-const token = process.env.PERSONAL_ACCESS_TOKEN;
+const token = process.env.TOKEN;
 
 const config = {
   headers: {
@@ -12,7 +10,9 @@ const config = {
   }
 };
 
-axios.put(`https://api.github.com/orgs/${org}/teams/${username}/repos/${org}/${repo}`, {
+const url = `https://api.github.com/repos/${org}/${repo}/collaborators/${username}`;
+
+axios.put(url, {
   permission: permission
 }, config)
   .then(response => {
@@ -20,4 +20,8 @@ axios.put(`https://api.github.com/orgs/${org}/teams/${username}/repos/${org}/${r
   })
   .catch(error => {
     console.error(`Error modifying permissions: ${error.message}`);
+    if (error.response) {
+      console.error(`Status: ${error.response.status}`);
+      console.error(`Data: ${JSON.stringify(error.response.data)}`);
+    }
   });
