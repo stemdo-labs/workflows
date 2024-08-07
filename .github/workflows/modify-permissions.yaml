@@ -1,20 +1,16 @@
 name: Modify Repository Permissions
 
 on:
-  workflow_dispatch:
-    inputs:
-      org:
-        description: 'Organization name'
-        required: true
-        default: 'stemdo-labs'
+  schedule:
+    - cron: '0 0 * * 1' # Ejecuta todos los lunes a medianoche UTC
+  workflow_dispatch: # Permite ejecutar el workflow manualmente desde la interfaz de GitHub
 
 permissions:
-  contents: write
+  contents: write  # Ajustar permisos según sea necesario
 
 jobs:
   modify-permissions:
     runs-on: ubuntu-latest
-    environment: needs-approve
 
     steps:
       - name: Checkout repository
@@ -28,7 +24,13 @@ jobs:
       - name: Install dependencies
         run: npm install axios
 
-      - name: my-app-install token
+      - name: Upload JSON configuration file
+        uses: actions/upload-artifact@v3
+        with:
+          name: repos-config
+          path: repos.json
+
+      - name: Set up GitHub App token
         id: my-app
         uses: getsentry/action-github-app-token@v3
         with:
@@ -36,15 +38,14 @@ jobs:
           private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
 
       - name: Modify repository permissions
+        id: modify-permissions
         env:
           TOKEN: ${{ steps.my-app.outputs.token }}
-          ORG: ${{ github.event.inputs.org }}
-        run: node modify-permissions.js
-
+        run: |
+          node modify-permissions.js > results.log || echo "Script failed" >> results.log
+          
       - name: Create Summary
         if: always()
         run: |
-          echo '### Summary' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat results.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### Summary of Permission Modifications" >> $GITHUB_STEP_SUMMARY
+          cat results.log | grep -e '|' >> $GITHUB_STEP_SUMMARY
