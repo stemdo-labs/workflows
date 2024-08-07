@@ -1,5 +1,6 @@
 const fs = require('fs');
 const axios = require('axios');
+const path = require('path');
 
 const token = process.env.TOKEN;
 const jsonFilePath = process.env.JSON_FILE_PATH || 'repos.json'; // Usar 'repos.json' por defecto
@@ -22,7 +23,7 @@ const readJsonFile = () => {
 };
 
 // Obtener usuarios de un repositorio
-const getRepoCollaborators = async (org, repo) => {
+const getRepoCollaborators = async (repo) => {
   const url = `https://api.github.com/repos/stemdo-labs/${repo}/collaborators`;
   try {
     const response = await axios.get(url, config);
@@ -33,7 +34,7 @@ const getRepoCollaborators = async (org, repo) => {
 };
 
 // Modificar permisos de un usuario en un repositorio
-const modifyPermissions = async (org, repo, user) => {
+const modifyPermissions = async (repo, user) => {
   const url = `https://api.github.com/repos/stemdo-labs/${repo}/collaborators/${user}`;
   try {
     await axios.put(url, null, {
@@ -68,6 +69,7 @@ const modifyPermissions = async (org, repo, user) => {
 // Función principal
 const main = async () => {
   const results = [];
+  const resultsFilePath = path.join(process.cwd(), 'results.log');
   try {
     const jsonData = readJsonFile();
     const repos = jsonData;
@@ -101,7 +103,8 @@ const main = async () => {
     }
 
     // Escribir resultados en un archivo para capturarlos en el resumen del workflow
-    fs.writeFileSync('results.log', markdownResults, 'utf8');
+    fs.writeFileSync(resultsFilePath, markdownResults, 'utf8');
+    console.log('Results logged successfully.');
 
   } catch (error) {
     console.error(`Unhandled error: ${error.message}`);
