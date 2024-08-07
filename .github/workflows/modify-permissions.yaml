@@ -1,12 +1,9 @@
 name: Modify Repository Permissions
 
 on:
+  # schedule:
+  # - cron: '0 0 * * 1' # Ejecuta todos los lunes
   workflow_dispatch:
-    inputs:
-      org:
-        description: 'Organization name'
-        required: true
-        default: 'stemdo-labs'
 
 permissions:
   contents: write
@@ -28,23 +25,27 @@ jobs:
       - name: Install dependencies
         run: npm install axios
 
-      - name: my-app-install token
+      - name: Set up GitHub App token
         id: my-app
         uses: getsentry/action-github-app-token@v3
         with:
           app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
           private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
 
+      - name: Upload JSON configuration file
+        uses: actions/upload-artifact@v3
+        with:
+          name: repos-config
+          path: repos.json
+
       - name: Modify repository permissions
         env:
           TOKEN: ${{ steps.my-app.outputs.token }}
-          ORG: ${{ github.event.inputs.org }}
+          JSON_FILE_PATH: repos.json
         run: node modify-permissions.js
 
       - name: Create Summary
         if: always()
         run: |
           echo '### Summary' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
           cat results.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
