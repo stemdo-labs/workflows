@@ -2,11 +2,11 @@ name: Modify Repository Permissions
 
 on:
   schedule:
-    - cron: '0 0 * * 1' # Ejecuta todos los lunes a medianoche UTC
-  workflow_dispatch: # Permite ejecutar el workflow manualmente desde la interfaz de GitHub
+    - cron: '15 14 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write  # Ajustar permisos según sea necesario
+  contents: write
 
 jobs:
   modify-permissions:
