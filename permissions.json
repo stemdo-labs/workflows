@@ -1,12 +1,12 @@
 {
     "repos": {
       "kubernetes-exercices-Luis-rodr": {
-        "users": {
+        "user": {
           "Luis-rodr": "read"
         }
       },
       "kubernetes-weekly-exercise-RalonsoS": {
-        "users": {
+        "user": {
           "RalonsoS": "read"
         }
       }

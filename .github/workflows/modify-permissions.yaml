@@ -14,6 +14,7 @@ permissions:
 jobs:
   modify-permissions:
     runs-on: ubuntu-latest
+    environment: needs-approve
 
     steps:
       - name: Checkout repository
