@@ -14,7 +14,6 @@ permissions:
 jobs:
   modify-permissions:
     runs-on: ubuntu-latest
-    environment: needs-approve
 
     steps:
       - name: Checkout repository
@@ -40,3 +39,11 @@ jobs:
           TOKEN: ${{ steps.my-app.outputs.token }}
           ORG: ${{ github.event.inputs.org }}
         run: node modify-permissions.js
+
+      - name: Create Summary
+        if: always()
+        run: |
+          echo '### Summary' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat results.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

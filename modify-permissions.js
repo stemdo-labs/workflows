@@ -15,46 +15,40 @@ const config = {
 const permissions = JSON.parse(fs.readFileSync('permissions.json', 'utf8'));
 
 // Función para modificar permisos
-const modifyPermissions = async (repo, entity, entityName, permission) => {
-  const url = `https://api.github.com/repos/${org}/${repo}/collaborators/${entityName}`;
+const modifyPermissions = async (repo, user, permission) => {
+  const url = `https://api.github.com/repos/${org}/${repo}/collaborators/${user}`;
   try {
     await axios.put(url, { permission: permission }, config);
-    console.log(`Successfully modified permissions for ${entityName} in ${repo}`);
+    return `Successfully modified permissions for ${user} in ${repo}`;
   } catch (error) {
-    console.error(`Error modifying permissions for ${entityName} in ${repo}: ${error.message}`);
+    const errorMsg = `Error modifying permissions for ${user} in ${repo}: ${error.message}`;
     if (error.response) {
-      console.error(`Status: ${error.response.status}`);
-      console.error(`Data: ${JSON.stringify(error.response.data)}`);
+      const detailedError = `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}`;
+      return `${errorMsg}\n${detailedError}`;
     }
+    return errorMsg;
   }
 };
 
-// Iterar sobre repositorios y modificar permisos
-(async () => {
-  const newRepos = [];  // Lista de nuevos repositorios
+// Función principal para iterar sobre repositorios y modificar permisos
+const main = async () => {
+  const results = [];
 
-  for (const [repo, entities] of Object.entries(permissions.repos)) {
-    for (const [user, permission] of Object.entries(entities.users)) {
-      await modifyPermissions(repo, 'user', user, permission);
-    }
-    for (const [group, permission] of Object.entries(entities.groups)) {
-      // Supongamos que tienes una función para obtener los usuarios del grupo
-      const groupUsers = await getUsersFromGroup(group);  
-      for (const user of groupUsers) {
-        await modifyPermissions(repo, 'group', user, permission);
-      }
-    }
-
-    // Verificar si el repositorio es nuevo y agregarlo a la lista
-    if (!permissions.repos[repo]) {
-      newRepos.push(repo);
-      permissions.repos[repo] = entities;
+  for (const [repo, users] of Object.entries(permissions.repos)) {
+    for (const [user, permission] of Object.entries(users)) {
+      const result = await modifyPermissions(repo, user, permission);
+      results.push(result);
     }
   }
 
-  // Guardar cambios en el archivo JSON si hay nuevos repos
-  if (newRepos.length > 0) {
-    fs.writeFileSync('permissions.json', JSON.stringify(permissions, null, 2), 'utf8');
-    console.log('Updated permissions.json with new repositories:', newRepos);
-  }
-})();
+  // Imprimir todos los resultados
+  console.log(results.join('\n'));
+
+  // Escribir resultados en un archivo para capturarlos en el resumen del workflow
+  fs.writeFileSync('results.log', results.join('\n'), 'utf8');
+};
+
+// Ejecutar la función principal
+main().catch(error => {
+  console.error(`Unhandled error: ${error.message}`);
+});
