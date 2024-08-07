@@ -42,9 +42,10 @@ jobs:
         env:
           TOKEN: ${{ steps.my-app.outputs.token }}
         run: |
-          node modify-permissions.js
-
+          node modify-permissions.js > results.log || echo "Script failed" >> results.log
+          
       - name: Create Summary
         if: always()
         run: |
-          echo "${{ steps.modify-permissions.outputs.summary }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Summary of Permission Modifications" >> $GITHUB_STEP_SUMMARY
+          cat results.log | grep -e '|' >> $GITHUB_STEP_SUMMARY

@@ -49,7 +49,8 @@ const updatePermissions = async () => {
     }
   }
 
-  console.log(`::set-output name=summary::${summary}`);
+  // Imprimir el resumen en formato Markdown
+  console.log(summary);
 };
 
 updatePermissions().catch(error => {
