@@ -23,6 +23,7 @@ jobs:
   convert_to_private:
     needs: [read-repos]
     runs-on: ubuntu-latest
+    environment: needs-approve
     strategy:
       fail-fast: false
       matrix:
