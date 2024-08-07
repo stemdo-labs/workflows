@@ -23,7 +23,7 @@ const readJsonFile = () => {
 
 // Obtener usuarios de un repositorio
 const getRepoCollaborators = async (org, repo) => {
-  const url = `https://api.github.com/repos/${org}/${repo}/collaborators`;
+  const url = `https://api.github.com/repos/stemdo-labs/${repo}/collaborators`;
   try {
     const response = await axios.get(url, config);
     return response.data.map(collaborator => collaborator.login);
@@ -34,7 +34,7 @@ const getRepoCollaborators = async (org, repo) => {
 
 // Modificar permisos de un usuario en un repositorio
 const modifyPermissions = async (org, repo, user) => {
-  const url = `https://api.github.com/repos/${org}/${repo}/collaborators/${user}`;
+  const url = `https://api.github.com/repos/stemdo-labs/${repo}/collaborators/${user}`;
   try {
     await axios.put(url, null, {
       headers: {
@@ -73,9 +73,9 @@ const main = async () => {
     const repos = jsonData;
 
     for (const repo of repos) {
-      const collaborators = await getRepoCollaborators('your-organization-name', repo);
+      const collaborators = await getRepoCollaborators('stemdo-labs', repo);
       for (const user of collaborators) {
-        const result = await modifyPermissions('your-organization-name', repo, user);
+        const result = await modifyPermissions('stemdo-labs', repo, user);
         results.push(result);
       }
     }
