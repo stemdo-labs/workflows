@@ -22,26 +22,36 @@ on:
           - write
           - read
 
+permissions:
+  contents: write  # Adjust permissions as needed
+
 jobs:
   modify-permissions:
     runs-on: ubuntu-latest
+    environment: needs-approve
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '14'
 
       - name: Install dependencies
         run: npm install axios
 
+      - name: my-app-install token
+        id: my-app
+        uses: getsentry/action-github-app-token@v3
+        with:
+          app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
+          private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
+
       - name: Modify repository permissions
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          TOKEN: ${{ steps.my-app.outputs.token }}
         run: |
           node modify-permissions.js \
             ${{ github.event.inputs.org }} \
