@@ -24,6 +24,12 @@ jobs:
       - name: Install dependencies
         run: npm install axios
 
+      - name: Upload JSON configuration file
+        uses: actions/upload-artifact@v3
+        with:
+          name: repos-config
+          path: repos.json
+
       - name: Set up GitHub App token
         id: my-app
         uses: getsentry/action-github-app-token@v3
@@ -31,27 +37,14 @@ jobs:
           app_id: ${{ secrets.DELETEMEPLEASESTEMDO_APP_ID }}
           private_key: ${{ secrets.DELETEMEPLEASESTEMDO_PRIVATE_KEY }}
 
-      - name: Upload JSON configuration file
-        uses: actions/upload-artifact@v3
-        with:
-          name: repos-config
-          path: repos.json
-
       - name: Modify repository permissions
+        id: modify-permissions
         env:
           TOKEN: ${{ steps.my-app.outputs.token }}
-          JSON_FILE_PATH: repos.json
-        run: node modify-permissions.js
-
-      - name: LS Test
-        run: ls -la
+        run: |
+          node modify-permissions.js
 
       - name: Create Summary
-        if: always()  # Asegura que este paso se ejecute sin importar el resultado anterior
+        if: always()
         run: |
-          echo '### Summary' >> $GITHUB_STEP_SUMMARY
-          if [ -f results.log ]; then
-            cat results.log >> $GITHUB_STEP_SUMMARY
-          else
-            echo 'No results.log file found.' >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "${{ steps.modify-permissions.outputs.summary }}" >> $GITHUB_STEP_SUMMARY

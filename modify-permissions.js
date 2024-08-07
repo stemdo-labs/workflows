@@ -1,115 +1,60 @@
-const fs = require('fs');
 const axios = require('axios');
+
+const fs = require('fs');
 const path = require('path');
 
+const reposFilePath = path.join(process.cwd(), 'repos.json');
+const repos = JSON.parse(fs.readFileSync(reposFilePath, 'utf8'));
+
+let summary = '### Summary of Permission Modifications\n\n';
+summary += '| Repo | User | Status | Message |\n';
+summary += '|------|------|--------|---------|\n';
+
 const token = process.env.TOKEN;
-const jsonFilePath = process.env.JSON_FILE_PATH || 'repos.json'; // Usar 'repos.json' por defecto
 
-const config = {
-  headers: {
-    'Authorization': `token ${token}`,
-    'Accept': 'application/vnd.github.v3+json'
-  }
-};
+let results = [];
 
-// Leer y parsear el archivo JSON
-const readJsonFile = () => {
-  try {
-    const data = fs.readFileSync(jsonFilePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    throw new Error(`Failed to read or parse JSON file: ${error.message}`);
-  }
-};
+const updatePermissions = async () => {
+  for (const repo of repos) {
+    try {
+      const url = `https://api.github.com/repos/${repo}/collaborators`;
 
-// Obtener usuarios de un repositorio
-const getRepoCollaborators = async (repo) => {
-  const url = `https://api.github.com/repos/stemdo-labs/${repo}/collaborators`;
-  try {
-    const response = await axios.get(url, config);
-    return response.data.map(collaborator => collaborator.login);
-  } catch (error) {
-    throw new Error(`Failed to get collaborators for ${repo}: ${error.message}`);
-  }
-};
+      // Obtener los colaboradores actuales
+      const { data: collaborators } = await axios.get(url, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
 
-// Modificar permisos de un usuario en un repositorio
-const modifyPermissions = async (repo, user) => {
-  const url = `https://api.github.com/repos/stemdo-labs/${repo}/collaborators/${user}`;
-  try {
-    await axios.put(url, null, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      },
-      params: {
-        permission: 'read'
+      for (const collaborator of collaborators) {
+        try {
+          // Actualizar permisos a lectura
+          await axios.put(
+            `https://api.github.com/repos/${repo}/collaborators/${collaborator.login}`,
+            { permission: 'read' },
+            {
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            }
+          );
+
+          summary += `| ${repo} | ${collaborator.login} | Success | Permissions updated to 'read' |\n`;
+        } catch (error) {
+          summary += `| ${repo} | ${collaborator.login} | Failed | ${error.message} |\n`;
+        }
       }
-    });
-    return {
-      repo,
-      user,
-      status: 'Success',
-      message: `Permissions set to read for ${user}`
-    };
-  } catch (error) {
-    let errorMsg = `Error modifying permissions for ${user} in ${repo}: ${error.message}`;
-    if (error.response) {
-      errorMsg = `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}`;
+    } catch (error) {
+      summary += `| ${repo} | N/A | Failed | ${error.message} |\n`;
     }
-    return {
-      repo,
-      user,
-      status: 'Failed',
-      message: errorMsg
-    };
   }
+
+  console.log(`::set-output name=summary::${summary}`);
 };
 
-// Función principal
-const main = async () => {
-  const results = [];
-  const resultsFilePath = path.join(process.cwd(), 'results.log');
-  try {
-    const jsonData = readJsonFile();
-    const repos = jsonData;
-
-    for (const repo of repos) {
-      const collaborators = await getRepoCollaborators('stemdo-labs', repo);
-      for (const user of collaborators) {
-        const result = await modifyPermissions('stemdo-labs', repo, user);
-        results.push(result);
-      }
-    }
-
-    // Crear el contenido del archivo de resultados en formato Markdown
-    let markdownResults = '### Summary of Permission Modifications\n\n';
-    markdownResults += '| Repo | User | Status | Message |\n';
-    markdownResults += '|------|------|--------|---------|\n';
-
-    let allSuccess = true;
-
-    results.forEach(result => {
-      if (result.status === 'Failed') {
-        allSuccess = false;
-      }
-      markdownResults += `| ${result.repo} | ${result.user} | ${result.status} | ${result.message} |\n`;
-    });
-
-    if (allSuccess) {
-      markdownResults = '### All permissions were modified successfully!\n\n' + markdownResults;
-    } else {
-      markdownResults = '### Some permissions could not be modified.\n\n' + markdownResults;
-    }
-
-    // Escribir resultados en un archivo para capturarlos en el resumen del workflow
-    fs.writeFileSync(resultsFilePath, markdownResults, 'utf8');
-    console.log('Results logged successfully.');
-
-  } catch (error) {
-    console.error(`Unhandled error: ${error.message}`);
-  }
-};
-
-// Ejecutar la función principal
-main();
+updatePermissions().catch(error => {
+  console.error('Error updating permissions:', error);
+  process.exit(1);
+});
