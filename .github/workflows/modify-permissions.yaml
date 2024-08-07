@@ -43,6 +43,9 @@ jobs:
           JSON_FILE_PATH: repos.json
         run: node modify-permissions.js
 
+      - name: LS Test
+        run: ls -la
+
       - name: Create Summary
         if: always()  # Asegura que este paso se ejecute sin importar el resultado anterior
         run: |
