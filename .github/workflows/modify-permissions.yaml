@@ -7,23 +7,9 @@ on:
         description: 'Organization name'
         required: true
         default: 'stemdo-labs'
-      repo:
-        description: 'Repository name'
-        required: true
-      username:
-        description: 'Username'
-        required: true
-      permission:
-        description: 'Permission level (admin, write, read)'
-        type: choice
-        required: true
-        options:
-          - admin
-          - write
-          - read
 
 permissions:
-  contents: write  # Adjust permissions as needed
+  contents: write
 
 jobs:
   modify-permissions:
@@ -52,9 +38,13 @@ jobs:
       - name: Modify repository permissions
         env:
           TOKEN: ${{ steps.my-app.outputs.token }}
+          ORG: ${{ github.event.inputs.org }}
+        run: node modify-permissions.js
+
+      - name: Create Summary
+        if: always()
         run: |
-          node modify-permissions.js \
-            ${{ github.event.inputs.org }} \
-            ${{ github.event.inputs.repo }} \
-            ${{ github.event.inputs.username }} \
-            ${{ github.event.inputs.permission }}
+          echo '### Summary' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat results.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
