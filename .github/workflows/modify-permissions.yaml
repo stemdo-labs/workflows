@@ -2,7 +2,7 @@ name: Modify Repository Permissions
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '15 15 * * *'
   workflow_dispatch:
 
 permissions:
