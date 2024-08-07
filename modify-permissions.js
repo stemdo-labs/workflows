@@ -18,7 +18,15 @@ const permissions = JSON.parse(fs.readFileSync('permissions.json', 'utf8'));
 const modifyPermissions = async (repo, user, permission) => {
   const url = `https://api.github.com/repos/${org}/${repo}/collaborators/${user}`;
   try {
-    await axios.put(url, { permission: permission }, config);
+    await axios.put(url, null, {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      params: {
+        permission: permission
+      }
+    });
     return `Successfully modified permissions for ${user} in ${repo}`;
   } catch (error) {
     const errorMsg = `Error modifying permissions for ${user} in ${repo}: ${error.message}`;
@@ -34,8 +42,8 @@ const modifyPermissions = async (repo, user, permission) => {
 const main = async () => {
   const results = [];
 
-  for (const [repo, users] of Object.entries(permissions.repos)) {
-    for (const [user, permission] of Object.entries(users)) {
+  for (const [repo, usersObj] of Object.entries(permissions.repos)) {
+    for (const [user, permission] of Object.entries(usersObj.user)) {
       const result = await modifyPermissions(repo, user, permission);
       results.push(result);
     }
